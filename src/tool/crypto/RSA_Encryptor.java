@@ -15,7 +15,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
-import tool.common.StringProcessor;
+import tool.util.StringProcessor;
 
 public class RSA_Encryptor {
 	public static final BigInteger SHORT_POWER = new BigInteger("17");// 用短公开指数加速加密，就是e=17

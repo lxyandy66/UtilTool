@@ -10,7 +10,7 @@ import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHPrivateKeySpec;
 import javax.crypto.spec.DHPublicKeySpec;
 
-import tool.common.StringProcessor;
+import tool.util.StringProcessor;
 
 public class DiffieHellmanEncryptor {
 	private static final String LOCAL_ALGORITHM = "AES";

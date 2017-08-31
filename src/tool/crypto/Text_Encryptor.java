@@ -27,7 +27,7 @@ public class Text_Encryptor {
 		}
 	}// 加密函数
 
-	public static String textProcess(String msg, boolean isEncrypt, int method, String key) throws Exception {
+	public static String textProcess(String msg, boolean isEncrypt, boolean isBase64Out,int method, String key) throws Exception {
 		char[] result = msg.toCharArray();
 		BigInteger keyInt;
 		switch (method) {
@@ -47,11 +47,11 @@ public class Text_Encryptor {
 				result[i] = (char) (isEncrypt ? result[i] + delta[i] : result[i] - delta[i]);
 			break;
 		case DES_ENCRYPT:
-			return Encryptor.encrypt_Process(msg, key, isEncrypt,"DES");
+			return Encryptor.encrypt_Process(msg, key, isEncrypt,isBase64Out,"DES");
 		case DESede_ENCRYPT:
-			return Encryptor.encrypt_Process(msg, key, isEncrypt, "DESede");
+			return Encryptor.encrypt_Process(msg, key, isEncrypt, isBase64Out,"DESede");
 		case AES_ENCRYPT:
-			return Encryptor.encrypt_Process(msg, key, isEncrypt, "AES");
+			return Encryptor.encrypt_Process(msg, key, isEncrypt, isBase64Out,"AES");
 		case BASE64_ENCODE:
 			if (isEncrypt)
 				return Base64.encode(msg.getBytes("UTF-8"));
@@ -63,10 +63,10 @@ public class Text_Encryptor {
 		return new String(result);
 	}
 
-	public static String textProcess(String msg, boolean isEncrypt, int method, String aStr, BigInteger b)
+	public static String textProcess(String msg, boolean isEncrypt,boolean isBase64Out, int method, String aStr, BigInteger b)
 			throws Exception {
 		if (method != AFFINE_ENCRYPT)
-			return textProcess(msg, isEncrypt, method, aStr);
+			return textProcess(msg, isEncrypt, isBase64Out,method, aStr);
 		BigInteger a = new BigInteger(aStr);
 		char[] result = msg.toCharArray();
 		for (int i = 0; i < result.length; i++)

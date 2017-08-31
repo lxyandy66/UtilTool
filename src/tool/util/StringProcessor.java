@@ -75,6 +75,10 @@ public class StringProcessor {
 	public static Object base64ToObject(String str) throws Exception {
 		return byteToObject(Base64.decode(str));
 	}
+	
+	public static String byteToBase64(byte[] b){
+		return Base64.encode(b);
+	}
 
 	/**
 	 * 对象转byte
