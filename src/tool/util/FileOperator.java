@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,13 +13,69 @@ import java.util.Scanner;
 public class FileOperator {
 	Scanner kb_input = new Scanner(System.in);
 	final String CREATE_HINT = "input record,split with ','";
-
-	protected void createFile(String fileName) throws Exception {
+	private File fileControl;
+	
+	/**初始化文件操作对象
+	 * @param fileName 需要操作的文件路径
+	 */
+	public FileOperator(String fileName){
+		this.fileControl=new File(fileName);
+	}
+	
+	/**初始化文件操作对象
+	 * @param fileName 需要操作的文件
+	 */
+	public FileOperator(File file){
+		this.fileControl=file;
+	}
+	
+	public String getCurrentFilePath(){
+		return fileControl.getAbsolutePath();
+	}
+	
+	
+	/**用于处理文件操作之前的审核
+	 * @return
+	 */
+	private boolean legalCheck(){
+		return fileControl==null||!fileControl.exists();
+	}
+	
+	public void createFile() throws IOException{
+		FileWriter fw=new FileWriter(fileControl);
+		fw.flush();
+		fw.close();
+	}
+	
+	public void writeToFile(String appendContent,boolean isAppend) throws IOException{
+		if(isAppend&&!legalCheck())
+			throw new IOException("文件不存在，无法追加");
+		FileOutputStream fos = new FileOutputStream(fileControl,isAppend);
+		fos.write(appendContent.getBytes("UTF-8"));;
+		fos.flush();
+		fos.close();
+	}
+	
+	public void writeToFile(String[] appendContent,boolean isAppend) throws IOException{
+		if(isAppend&&!legalCheck())
+			throw new IOException("文件不存在，无法追加");
+		FileOutputStream fos = new FileOutputStream(fileControl,isAppend);
+		for(String temp:appendContent)
+			fos.write(temp.getBytes("UTF-8"));;
+		fos.flush();
+		fos.close();
+	}
+	
+	/**@deprecated
+	 * 这是大三上Java课程中大作业的原始函数，现在已不推荐使用，除非有从控制台输入输出的需要
+	 * @param fileName
+	 * @throws Exception
+	 */
+	public static void createFile(String fileName) throws Exception {
 		byte[] content = new byte[1024];
 		try {
 			FileWriter fw = new FileWriter(fileName);
-
-			System.out.println(CREATE_HINT);
+			//System.out.println(CREATE_HINT);
 			do {
 				int length = System.in.read(content);
 				if (length < 2)// 环境为Mac OS X
@@ -90,7 +147,12 @@ public class FileOperator {
 		}
 	}
 
-	protected void appendFile(String fileName) {
+	/**
+	 * @deprecated
+	 * 这是大三上Java课程中大作业的原始函数，现在已不推荐使用，除非有从控制台输入输出的需要
+	 * @param fileName
+	 */
+	public void appendFile(String fileName,boolean b) {
 		byte[] content = new byte[1024];
 		try {
 			File f = new File(fileName);

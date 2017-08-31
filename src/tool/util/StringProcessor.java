@@ -120,7 +120,31 @@ public class StringProcessor {
 		oi.close();
 		return obj;
 	}
-
+	
+	/**@author Li
+	 * @param array 输入的字符串数组
+	 * @return 转换完成的多行段落
+	 */
+	public static String stringArrayToDialog(String[] array){
+		String result="";
+		for(String temp:array)
+			result+=temp+"\n";
+		return result;
+	} 
+	
+	/**提供将字符串数组以制定的分割符号隔开输出为一个完整的字符串的方法
+	 * 
+	 * @param array	输入的字符串数组
+	 * @param interv 所分隔字符串的符号
+	 * @return
+	 */
+	public static String stringArrayToDialog(String[] array,String interv){
+		String result="";
+		for(String temp:array)
+			result+=temp+interv;
+		return result;
+	}
+	
 	@Deprecated
 	public static String rsaPublicKeyToBase64(RSAPublicKey pubKey) {
 		return Base64.encode(objectToByte(pubKey));
