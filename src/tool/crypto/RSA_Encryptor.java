@@ -2,73 +2,89 @@ package tool.crypto;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-
 import tool.util.StringProcessor;
 
 public class RSA_Encryptor {
+	/*
+	 * 这个类用于实际按照业界标准的X509EncodedKeySpec以及PKCS8EncodedKeySpec作为公私钥的分发以及使用
+	 */
+
 	public static final BigInteger SHORT_POWER = new BigInteger("17");// 用短公开指数加速加密，就是e=17
-	private static final String NOT_PRIME = "Number is not prime number";
 	private static final int BIT_LENGTH = 1024;
 	private static final int CERTAINTY = 200;
+	private static final String RSA_ALGORITHM = "RSA";
 	// 所以要不要成员变量???
 
 	private static SecureRandom random = new SecureRandom("Powered by L' 201301110216".getBytes());//
+
+	public static KeyPair generateKeyPair(byte[] seed) throws NoSuchAlgorithmException {
+		KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA_ALGORITHM);
+		generator.initialize(BIT_LENGTH, new SecureRandom(seed));
+		return generator.generateKeyPair();
+	}
+
+	public static byte[] encryptData(byte[] data, String base64PubKey)
+			throws Exception {
+		Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+//		cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(base64PubKey));/*WTMSB这里直接用base64解出来了get啥DerInputStream.getLength(): lengthTag=109, too big.*/
+		cipher.init(Cipher.ENCRYPT_MODE, (RSAPublicKey)StringProcessor.base64ToObject(base64PubKey));
+		return cipher.doFinal(data);
+	}
+
+	public static byte[] decryptData(byte[] data, String base64PrvKey)
+			throws Exception {
+		Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+//		cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(base64PrvKey));/*WTMSB这里直接用base64解出来了get啥DerInputStream.getLength(): lengthTag=109, too big.*/
+		cipher.init(Cipher.DECRYPT_MODE, (RSAPrivateKey)StringProcessor.base64ToObject(base64PrvKey));
+		return cipher.doFinal(data);
+	}
 
 	public static BigInteger genaratePrime() {// 给外面的直接调用生成
 		return BigInteger.probablePrime(BIT_LENGTH, random);
 	}
 
-	public static BigInteger getPublicKeyInteger(BigInteger a, BigInteger b) throws Exception {
-		if (!isTwoPrime(a, b))
-			throw new Exception("This two is not prime number");
-		return a.multiply(b);
-	}// 就是计算n,这个方法不用于公开
+	public static RSAPublicKey getPublicKey(String base64PubKey)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+		X509EncodedKeySpec keySpace = new X509EncodedKeySpec(Base64.decode(base64PubKey));
+		KeyFactory factory = KeyFactory.getInstance(RSA_ALGORITHM);
+		return (RSAPublicKey) factory.generatePublic(keySpace);/*不是这里的问题...!!!报错：DerInputStream.getLength(): lengthTag=109, too big.!!!*/
+		//看网上说是证书和私钥的问题，未解决
+	}
 
-	public static RSAPublicKey getPublicKey(BigInteger a, BigInteger b) throws Exception {
-		BigInteger publicK = getPublicKeyInteger(a, b);// 公钥模数n
-		RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(publicK, SHORT_POWER);
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		return (RSAPublicKey) keyFactory.generatePublic(pubKeySpec);
-	}// 就是计算n
+	public static RSAPrivateKey getPrivateKey(String base64PrvKey)//所以这个base64给的到底是个啥??privateKey？
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		PKCS8EncodedKeySpec keySpace = new PKCS8EncodedKeySpec(Base64.decode(base64PrvKey));
+		KeyFactory factory = KeyFactory.getInstance(RSA_ALGORITHM);/*也不是这里的问题...!!!同样解密也会报错DerInputStream.getLength(): lengthTag=109, too big.!!!*/
+		return (RSAPrivateKey) factory.generatePrivate(keySpace);
+	}
 
-	public static String getPublicKeyString(BigInteger a, BigInteger b) throws Exception {// 通通Base64
-		// return StringProcessor.rsaPublicKeyToBase64(getPublicKey(a, b));
-		return StringProcessor.objectToBase64(getPublicKey(a, b));
-	}// 就是计算n
-
+	/**
+	 * 这个方法直接用来从已变为Base64格式的RSAPublicKey字符串恢复到对象
+	 * 
+	 * @param str
+	 * @return
+	 * @throws Exception
+	 */
 	public static RSAPublicKey getPublicKeyFromBase64(String str) throws Exception {
 		return (RSAPublicKey) StringProcessor.byteToObject(Base64.decode(str));
-	}
-
-	public static BigInteger getPrivateKeyInteger(BigInteger primeA, BigInteger primeB) throws Exception {
-		if (!isTwoPrime(primeA, primeB))
-			throw new Exception(NOT_PRIME);
-		return SHORT_POWER.modInverse(initEulerValue(primeA, primeB));// 注意这里出现过BigInteger
-																		// not
-																		// invertible的异常
-	}// 这个不用于公开
-
-	public static RSAPrivateKey getPrivateKey(BigInteger a, BigInteger b) throws Exception {
-		RSAPrivateKeySpec privateKeySpec = new RSAPrivateKeySpec(getPublicKeyInteger(a, b), getPrivateKeyInteger(a, b));
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		return (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
-	}
-
-	public static String getPrivateKeyString(BigInteger a, BigInteger b) throws Exception {
-		// return StringProcessor.rsaPrivateKeyToBase64(getPrivateKey(a, b));
-		return StringProcessor.objectToBase64(getPrivateKey(a, b));
 	}
 
 	public static String Encrypt(String msg, String pubKey)
@@ -91,19 +107,6 @@ public class RSA_Encryptor {
 		return Base64.encode(c.doFinal(msg.getBytes("UTF-8")));
 	}// 仅用于签名
 
-	public static String Encrypt(String msg, BigInteger a, BigInteger b) throws Exception {
-		if (!a.isProbablePrime(CERTAINTY) || !b.isProbablePrime(CERTAINTY))
-			return "FAIL!";
-		return Encrypt(msg, getPublicKey(a, b));
-	}
-
-	public static BigInteger Encrypt(BigInteger msg, BigInteger primeA, BigInteger primeB) throws Exception {
-		if (!isTwoPrime(primeA, primeB))
-			throw new Exception(NOT_PRIME);
-		BigInteger publicK = getPublicKeyInteger(primeA, primeB);
-		return msg.pow(SHORT_POWER.intValue()).mod(publicK);
-	}// 这个方法没问题了
-
 	public static String Decrypt(String msg, String prvKey) throws Exception {
 		return Decrypt(msg, (RSAPrivateKey) StringProcessor.base64ToObject(prvKey));
 	}
@@ -120,24 +123,8 @@ public class RSA_Encryptor {
 		return new String(c.doFinal(Base64.decode(msg)), "UTF-8");
 	}// 仅用于验证签名
 
-	public static String Decrypt(String msg, BigInteger primeA, BigInteger primeB) throws Exception {
-		if (!primeA.isProbablePrime(CERTAINTY) || !primeB.isProbablePrime(CERTAINTY))
-			return "FAIL!";
-		return Decrypt(msg, getPrivateKey(primeA, primeB));
-	}
-
-	public static BigInteger Decrypt(BigInteger msg, BigInteger primeA, BigInteger primeB) throws Exception {
-		BigInteger priKey = getPrivateKeyInteger(primeA, primeB);
-		BigInteger pubKey = getPublicKeyInteger(primeA, primeB);
-		return msg.pow(priKey.intValue()).mod(pubKey);
-	}// 这个方法理论没问题了，但是需要明文密文都在限定范围，即Msg<n
-
 	public static boolean isTwoPrime(BigInteger a, BigInteger b) {
 		return a.isProbablePrime(CERTAINTY) && b.isProbablePrime(CERTAINTY);
-	}
-
-	private static BigInteger initEulerValue(BigInteger a, BigInteger b) {
-		return a.add(BigInteger.ONE.negate()).multiply(b.add(BigInteger.ONE.negate()));
 	}
 
 	public static String intToBinary(BigInteger bigInt, int radix) {

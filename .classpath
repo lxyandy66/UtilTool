@@ -3,5 +3,40 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/Git Repository/AudioProcess/AudioEnhance.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/fluent-hc-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/httpclient-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/httpclient-cache-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/httpclient-win-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/httpcore-4.4.6.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/httpmime-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/jna-4.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/jna-platform-4.1.0.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/jcl-over-slf4j-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/jcl-over-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/jul-to-slf4j-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/jul-to-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/log4j-over-slf4j-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/log4j-over-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/osgi-over-slf4j-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/osgi-over-slf4j-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-android-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-android-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-api-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-ext-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-ext-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-jcl-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-jcl-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-jdk14-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-jdk14-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-log4j12-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-log4j12-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-migrator-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-nop-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-nop-1.7.25.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-simple-1.7.25-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-simple-1.7.25.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
