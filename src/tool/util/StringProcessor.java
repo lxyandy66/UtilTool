@@ -79,6 +79,10 @@ public class StringProcessor {
 	public static String byteToBase64(byte[] b){
 		return Base64.encode(b);
 	}
+	
+	public static byte[] base64ToByte(String s) {
+		return Base64.decode(s);
+	}
 
 	/**
 	 * 对象转byte

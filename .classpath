@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/Git Repository/AudioProcess/AudioEnhance.jar"/>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/ApacheHttpComponent/commons-logging-1.2.jar"/>
@@ -38,5 +47,10 @@
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-nop-1.7.25.jar"/>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-simple-1.7.25-sources.jar"/>
 	<classpathentry kind="lib" path="/Users/Mr_Li/Documents/devspace/SLF4J/slf4j-simple-1.7.25.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
