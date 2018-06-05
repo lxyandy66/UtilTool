@@ -18,17 +18,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-/**
- * @author Mr_Li
- *
- */
-/**
- * @author Mr_Li
- *
- */
+
 public class ExcelProcessor extends DataFileProcessor {
-
-
 
 	/**
 	 * POI中实际excel处理对象,需加载
@@ -70,6 +61,17 @@ public class ExcelProcessor extends DataFileProcessor {
 
 		// on develop
 		System.out.println("Load success : " + dataFile.getName());
+	}
+
+	public void loadDataFile(File f, boolean isCreatFile, boolean isXlsxFile) throws Exception {
+		if (!isCreatFile)
+			loadDataFile(f);
+		f.createNewFile();
+		this.dataFile = f;
+		this.dataFis = new FileInputStream(f);
+		this.wb = isXlsxFile ? new XSSFWorkbook() : new HSSFWorkbook();
+		st = isCreatFile ? wb.createSheet() : this.wb.getSheetAt(0);
+		sheetCount = wb.getNumberOfSheets();
 	}
 
 	public void closeDataFile() throws IOException {
@@ -128,6 +130,32 @@ public class ExcelProcessor extends DataFileProcessor {
 		wb.setActiveSheet(stNum);
 	}
 
+	public static Cell getCell(Row r, int col) throws IOException {
+		return getCell(r.getSheet(), r.getRowNum(), col);
+	}
+
+	public static Cell getCell(Sheet st, int row, int column) throws IOException {
+		int sheetMergeCount = st.getNumMergedRegions();
+		if (sheetMergeCount <= 0)
+			return st.getRow(row).getCell(column);
+		for (int i = 0; i < sheetMergeCount; i++) {
+			CellRangeAddress ca = st.getMergedRegion(i);
+			int firstColumn = ca.getFirstColumn();
+			int lastColumn = ca.getLastColumn();
+			int firstRow = ca.getFirstRow();
+			int lastRow = ca.getLastRow();
+
+			if (row >= firstRow && row <= lastRow) {
+				if (column >= firstColumn && column <= lastColumn) {
+					Row fRow = st.getRow(firstRow);
+					Cell fCell = fRow.getCell(firstColumn);
+					return fCell;
+				}
+			}
+		}
+		return st.getRow(row).getCell(column);
+	}
+
 	/**
 	 * 获取当前工作表的单元格值，如参数为(1,1)，获取为B2单元格值
 	 * 
@@ -138,8 +166,6 @@ public class ExcelProcessor extends DataFileProcessor {
 	 * @return
 	 */
 	public Cell getCell(int rowNum, int colNum) throws IOException {
-		if (!isLoad())
-			throw new IOException(ERROR_GENERAL_ON_LOAD);
 		return st.getRow(rowNum).getCell(colNum);
 	}
 
@@ -193,15 +219,92 @@ public class ExcelProcessor extends DataFileProcessor {
 
 	public static String[] getRowValue(Row r) {
 		ArrayList<String> array = new ArrayList<String>();
-		r.forEach(c -> array.add(c.getStringCellValue()));
+		r.forEach(c -> {
+			try {
+				array.add(c.getStringCellValue());
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				array.add(String.format("%.4f", c.getNumericCellValue()));
+			}
+		});
 		return array.toArray(new String[array.size()]);
 	}
 
-	public void appendRow(String[] s, Sheet st) throws FileNotFoundException, IOException {
+	/**
+	 * 将数组按顺序逐个追加到行中
+	 * 
+	 * @param s
+	 * @param st
+	 *            追加到的Sheet
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void appendRow(String[] s, Sheet st) {
+		if(s==null)
+			return;
+		if (st == null)
+			st = this.getCurrentSheet();
 		Row r = st.createRow(st.getLastRowNum() + 1);
 		for (int i = 0; i < s.length; i++) {
 			r.createCell(i);
 			r.getCell(i).setCellValue(s[i]);
+		}
+	}
+
+	
+	/**增加标题栏，注意，工作表的首行若有内容将被覆盖
+	 * @param title 标题栏内容
+	 * @param st 增加标题栏的工作表，为空则为当前活动的工作表
+	 */
+	public void appendTitle(String[] title, Sheet st) {
+		if(title==null)
+			return;
+		if (st == null)
+			st = this.getCurrentSheet();
+		Row r = st.createRow(0);
+		for (int i = 0; i < title.length; i++) {
+			r.createCell(i);
+			r.getCell(i).setCellValue(title[i]);
+		}
+	}
+	
+
+	/**
+	 * 通过接口类RowProcessor对源文件目录下所有的Excel进行处理 典型应用如多个原始Excel文件需要统一追加到一个新Excel文件并进行格式处理
+	 * 
+	 * @param dir
+	 *            含多个原始Excel文件
+	 * @param titleLength
+	 *            原始文件标题栏长度
+	 * @param rp 实现对数据源Excel文件行进行处理的接口
+	 * @throws Exception
+	 */
+	public void appendFile(File[] dir, int titleLength, RowProcessable rp) throws Exception {
+		ExcelProcessor epSource = new ExcelProcessor();
+		Sheet st;
+		for (File f : dir) {
+			if (!isLegal(f))
+				continue;
+			epSource.loadDataFile(f);
+			for (int i = 0; i < epSource.getSheetCount(); i++) {
+				st = epSource.getSheetAt(i);
+				for (int j = titleLength; j < st.getLastRowNum(); j++)
+					rp.processRow(st.getRow(j), i);// 对单独的行进行处理
+			}
+			epSource.closeDataFile();
+		}
+	}
+
+	/**对当前加载的Excel每个工作表每行进行遍历，可忽略指定行数的标题栏
+	 * @param titleLength 标题栏行数
+	 * @param rp
+	 * @throws Exception
+	 */
+	public void iterateExcel(int titleLength, RowProcessable rp) throws Exception {
+		int i = 0;
+		for (Sheet st : this.getCurrentWorkBook()) {
+			for (int j = titleLength; j < st.getLastRowNum(); j++)
+				rp.processRow(st.getRow(j), i);
 		}
 	}
 
@@ -213,58 +316,114 @@ public class ExcelProcessor extends DataFileProcessor {
 		return dataFis != null && wb != null;
 	}
 
-	protected boolean isLegal(File f) throws IOException {
+	protected boolean isLegal(File f) {
 		String[] type = f.getName().split("\\.");
-		if (f == null || !f.exists())
-			throw new IOException(ERROR_EMPTY);
-		if(!f.isFile() )
-			throw new IOException(f.getName()+ERROR_NOT_FILE);
-		if (!type[type.length - 1].equals("xls") && !type[type.length - 1].equals("xlsx"))
-			throw new IOException(f.getName()+ ERROR_TYPE);
+		if (f == null || !f.exists()) {
+			System.out.println(ERROR_EMPTY);
+			return false;
+		}
+		if (!f.isFile()) {
+			System.out.println(f.getName() + ERROR_NOT_FILE);
+			return false;
+		}
+		if (!type[type.length - 1].equals("xls") && !type[type.length - 1].equals("xlsx")) {
+			System.out.println(f.getName() + ERROR_TYPE);
+			return false;
+		}
 		return true;
 	}
 
 	/**
+	 * 将本对象加载的Excel文件按最大行数maxRow分割为多个Excel小文件
+	 * 
 	 * @param maxRow
+	 *            分割出的小Excel最大行数
 	 * @param outputFiles
+	 *            输出文件列表，本方法不处理其标题栏
 	 * @param thisTitleLength
+	 *            本文件的标题长度
 	 * @param creator
 	 *            需要对原始Excel文档进行处理实现的接口类
 	 * @throws Exception
 	 */
-	public <E> void splitDataFile(int maxRow, File[] outputFiles, int thisTitleLength, EntityCreator<E> creator)
+	public <E> void splitDataFile(int maxRow, File[] outputFiles, int thisTitleLength, EntityCreatable<E> creator)
 			throws Exception {
-
-		int ctrlLine = 0;
-		// 控制输出的excel
-		int ctrlOutput = 0;
-		int totalProcess = 0;
+		int[] ctrlCount=new int[] {0,0,0};//ctrlLine,ctrlOutput,totalProcess
 		ExcelProcessor ep = new ExcelProcessor();
-		ep.loadDataFile(outputFiles[ctrlOutput]);//目标Excel
-
-		for (Sheet st : this.getCurrentWorkBook()) {
-			//对源Excel进行遍历
-			for (int i = thisTitleLength; i < st.getLastRowNum(); i++) {
+		ep.loadDataFile(outputFiles[ctrlCount[1]]);// 目标Excel
+		this.iterateExcel(thisTitleLength, new RowProcessable() {
+			
+			@Override
+			public void processRow(Row r, int sheetNum) throws Exception {
+				// TODO Auto-generated method stub
 				if (creator == null) {
-					ep.appendRow(ExcelProcessor.getRowValue(st.getRow(i)), ep.getCurrentSheet());
+					ep.appendRow(ExcelProcessor.getRowValue(r), null);
 				} else
-					ep.appendRow(creator.toStringArray(creator.getEntityFromObject(st.getRow(i))), ep.getCurrentSheet());
-				totalProcess++;
-				ctrlLine++;
-				if (ctrlLine >= maxRow && ctrlOutput + 1 < outputFiles.length) {
+					ep.appendRow(creator.toStringArray(creator.getEntityFromObject(r)),
+							ep.getCurrentSheet());
+				ctrlCount[2]++;
+				ctrlCount[0]++;
+				if (ctrlCount[0] >= maxRow && ctrlCount[1] + 1 < outputFiles.length) {
 					// 超过行数控制且还有输出时切换输出控制excel
 					ep.saveChange();
 					ep.closeDataFile();
-					ep.loadDataFile(outputFiles[++ctrlOutput]);
-					ctrlLine = 0;
+					ep.loadDataFile(outputFiles[++ctrlCount[1]]);
+					ctrlCount[0] = 0;
 				}
 			}
-		}
+		});
 		ep.saveChange();
 		ep.closeDataFile();
-		System.out.println("分割完毕，共分割 " + totalProcess + " 条");
+		System.out.println("分割完毕，共分割 " + ctrlCount[2] + " 条");
 	}
 
+	/** 将本对象加载的Excel文件按最大行数maxRow分割为多个Excel小文件，自动生成分割后Excel小文件
+	 * @param maxRow 单个文件的最大行数(含标题行)
+	 * @param outputDir 输出的目录，需为文件夹
+	 * @param isXlsxFile
+	 * @param targetTitle
+	 * @param thisTitleLength
+	 * @param creator
+	 * @throws Exception
+	 */
+	public <E> void splitDataFile(int maxRow, File outputDir, boolean isXlsxFile, String[] targetTitle,
+			int thisTitleLength, EntityCreatable<E> creator) throws Exception {
+		if(!outputDir.isDirectory())
+			throw new IOException(ERROR_NOT_DIR);
+		int[] ctrlCount = new int[] { 0, 0, 1 };//lineCtrl,totalCtrl,fileCtrl 实际上相当于单独三个变量，但是考虑到内部类的问题
+		String[] targetFileName = { outputDir.getAbsolutePath() + "/" + this.dataFile.getName().split("\\.")[0] + "_",
+				(isXlsxFile ? ".xlsx" : ".xls") };
+		File targetFile = new File(targetFileName[0] + ctrlCount[2] + targetFileName[1]);
+		ExcelProcessor epTarget = new ExcelProcessor();
+		epTarget.loadDataFile(targetFile, true, isXlsxFile);
+		epTarget.appendTitle(targetTitle, null);// 添加标题
+		RowProcessable rp = new RowProcessable() {
+
+			@Override
+			public void processRow(Row r, int sheetNum) throws Exception {
+				// TODO Auto-generated method stub
+				if (creator == null)
+					epTarget.appendRow(ExcelProcessor.getRowValue(r), null);
+				else
+					epTarget.appendRow(creator.toStringArray(creator.getEntityFromObject(r)), null);
+				ctrlCount[1]++;
+				if ((++ctrlCount[0]) >= maxRow && r.getRowNum() < r.getSheet().getLastRowNum()) {
+					epTarget.saveChange();
+					epTarget.closeDataFile();
+					epTarget.loadDataFile(new File(targetFileName[0] + ++ctrlCount[2] + targetFileName[1]), true,
+							isXlsxFile);
+					epTarget.appendTitle(targetTitle, null);
+					ctrlCount[0] = 0;
+				}
+			}
+		};
+		this.iterateExcel(thisTitleLength, rp);
+		System.out.println("分割完毕，共分割  " + ctrlCount[1] + " 条数据");
+		epTarget.saveChange();
+		epTarget.closeDataFile();
+	}
+
+	
 	/**
 	 * 按Excel内容处理为HashMap格式,仅支持未合并的单元格
 	 * 
@@ -336,6 +495,9 @@ public class ExcelProcessor extends DataFileProcessor {
 	 */
 	public Object getCellValue(Sheet sheet, int row, int column) {
 		int sheetMergeCount = sheet.getNumMergedRegions();
+		System.out.println(sheetMergeCount);
+		if (sheetMergeCount <= 0)
+			return getSingleCellValue(st.getRow(row).getCell(column));
 		for (int i = 0; i < sheetMergeCount; i++) {
 			CellRangeAddress ca = sheet.getMergedRegion(i);
 			int firstColumn = ca.getFirstColumn();
@@ -351,7 +513,7 @@ public class ExcelProcessor extends DataFileProcessor {
 				}
 			}
 		}
-		return null;
+		return getSingleCellValue(st.getRow(row).getCell(column));
 	}
 
 	/**

@@ -44,7 +44,7 @@ public class CSVProcessor extends DataFileProcessor {
 	 * @param creator
 	 * @throws Exception
 	 */
-	public <E> void splitDataFile(int maxRow, File[] outputFiles, int thisTitleLength, EntityCreator<E> creator)
+	public <E> void splitDataFile(int maxRow, File[] outputFiles, int thisTitleLength, EntityCreatable<E> creator)
 			throws Exception {
 		int ctrlLine = 0;
 		// 控制输出的excel
