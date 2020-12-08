@@ -56,9 +56,11 @@ public abstract class ThreadClient implements Runnable {
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			socket=null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			socket=null;
 		}
 	}
 
