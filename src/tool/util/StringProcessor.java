@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -148,6 +149,8 @@ public class StringProcessor {
 			result+=temp+interv;
 		return result;
 	}
+	
+
 	
 	@Deprecated
 	public static String rsaPublicKeyToBase64(RSAPublicKey pubKey) {

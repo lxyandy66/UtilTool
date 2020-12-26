@@ -13,7 +13,7 @@ public interface SocketProcessor {
 	 */
 	public void printConsole(String str);
 	
-	/**处理接收到的数据，例如命令处理及执行等
+	/**处理接收到的数据，例如命令处理、转发、及执行等
 	 * @param str
 	 */
 	public void processIncomeMsg(String str);
@@ -29,6 +29,7 @@ public interface SocketProcessor {
 	/**在开始接收之前，给socket的建立连接时的第一个消息
 	 * @param str
 	 */
-	public abstract void initalProcess(ThreadServer ts);
+	public abstract void initalProcess(Object ts);
+	
 	
 }

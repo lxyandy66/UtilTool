@@ -22,7 +22,7 @@ public class ThreadServer implements Runnable {// 觉得这个还可以再精简
 	/**
 	 * @param id the id to set
 	 */
-	private void setId(int id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	/**
@@ -46,14 +46,12 @@ public class ThreadServer implements Runnable {// 觉得这个还可以再精简
 		this.tr_socket = csocket;
 		this.sp=sp;
 		this.id=hashCode();
-		sp.printConsole("ThreadServer consturcted! id: "+id);
 	}// 构造函数，从ServerManager中接收Socket
 
-	public ThreadServer(ClientSocket csocket,SocketProcessor sp,int id,String descr) throws IOException {
+	public ThreadServer(ClientSocket csocket,SocketProcessor sp,int id) throws IOException {
 		this.tr_socket = csocket;
 		this.sp=sp;
 		this.id=id;
-		this.descr=descr;
 		sp.printConsole("ThreadServer consturcted! id: "+id);
 	}// 构造函数，从ServerManager中接收Socket
 

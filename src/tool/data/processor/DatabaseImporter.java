@@ -6,17 +6,19 @@ import java.util.ArrayList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 
-public abstract class DataBaseImporter {
+public abstract class DatabaseImporter {
 
 	private final String ERROR_NOT_INIT = "没有初始化管理连接";
 	private final String ERROR_EXIST = "已经存在一个活跃的连接";
 	private final String ERRROR_NOT_ACTIVE = "连接不是活跃的";
 
+	@PersistenceContext
 	private EntityManager em;
 	private EntityTransaction transaction;
 
-	public DataBaseImporter() {
+	public DatabaseImporter() {
 	}
 
 	public void initDataBase(EntityManagerFactory factory) {
@@ -39,6 +41,9 @@ public abstract class DataBaseImporter {
 		transaction.commit();
 	}
 
+	/**提供一个直接的接口，直接通过对EntityManager的处理，进行复杂的操作
+	 * @param em
+	 */
 	public abstract void persistTool(EntityManager em);
 
 	public <E> void persistEntity(ArrayList<E> array,boolean hasTransaction) throws Exception {
@@ -81,6 +86,19 @@ public abstract class DataBaseImporter {
 		em.getTransaction().commit();
 		em.close();
 	}
+	
+	/**
+	 * 用于实现persistTool实现的流程化持久，本方法将自动启用并提交连接
+	 * 
+	 * @throws Exception
+	 */
+	public <E> void persistEntity(E obj) throws IOException {
+		if (!isInit())
+			throw new IOException(ERROR_NOT_INIT);
+		em.getTransaction().begin();
+		em.persist(obj);
+		em.getTransaction().commit();
+	}
 
 	public void closeConnect() throws IOException {
 		if (!isInit())
@@ -88,11 +106,11 @@ public abstract class DataBaseImporter {
 		em.close();
 	}
 
-	private boolean isInit() {
+	public boolean isInit() {
 		return em != null;
 	}
 
-	private boolean isExistTransaction() {
+	public boolean isExistTransaction() {
 		return transaction != null;
 	}
 

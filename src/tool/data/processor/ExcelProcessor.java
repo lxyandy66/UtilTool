@@ -12,12 +12,12 @@ import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 
 public class ExcelProcessor extends DataFileProcessor {
 
@@ -39,8 +39,7 @@ public class ExcelProcessor extends DataFileProcessor {
 	/**
 	 * 加载需要处理的excel文件
 	 * 
-	 * @param f
-	 *            需要加载的excel文件
+	 * @param f 需要加载的excel文件
 	 * @throws Exception
 	 */
 	public void loadDataFile(File f) throws Exception {
@@ -102,8 +101,7 @@ public class ExcelProcessor extends DataFileProcessor {
 	/**
 	 * 获取序号对应的Sheet
 	 * 
-	 * @param stNum
-	 *            Excel实际序号-1
+	 * @param stNum Excel实际序号-1
 	 * @return
 	 * @throws Exception
 	 */
@@ -159,10 +157,8 @@ public class ExcelProcessor extends DataFileProcessor {
 	/**
 	 * 获取当前工作表的单元格值，如参数为(1,1)，获取为B2单元格值
 	 * 
-	 * @param rowNum
-	 *            行号，为excel中实际行号-1
-	 * @param colNum
-	 *            列号，为excel中实际列号-1
+	 * @param rowNum 行号，为excel中实际行号-1
+	 * @param colNum 列号，为excel中实际列号-1
 	 * @return
 	 */
 	public Cell getCell(int rowNum, int colNum) throws IOException {
@@ -172,12 +168,9 @@ public class ExcelProcessor extends DataFileProcessor {
 	/**
 	 * 获取特定工作表的单元格值，如参数为(0,1,1)，获取为Sheet1中B2单元格值
 	 * 
-	 * @param stNum
-	 *            工作表号，为excel中实际工作表号-1
-	 * @param rowNum
-	 *            行号，为excel中实际行号-1
-	 * @param colNum
-	 *            列号，为excel中实际列号-1
+	 * @param stNum  工作表号，为excel中实际工作表号-1
+	 * @param rowNum 行号，为excel中实际行号-1
+	 * @param colNum 列号，为excel中实际列号-1
 	 * @return
 	 * @throws IOException
 	 */
@@ -234,13 +227,12 @@ public class ExcelProcessor extends DataFileProcessor {
 	 * 将数组按顺序逐个追加到行中
 	 * 
 	 * @param s
-	 * @param st
-	 *            追加到的Sheet
+	 * @param st 追加到的Sheet
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	public void appendRow(String[] s, Sheet st) {
-		if(s==null)
+		if (s == null)
 			return;
 		if (st == null)
 			st = this.getCurrentSheet();
@@ -251,13 +243,14 @@ public class ExcelProcessor extends DataFileProcessor {
 		}
 	}
 
-	
-	/**增加标题栏，注意，工作表的首行若有内容将被覆盖
+	/**
+	 * 增加标题栏，注意，工作表的首行若有内容将被覆盖
+	 * 
 	 * @param title 标题栏内容
-	 * @param st 增加标题栏的工作表，为空则为当前活动的工作表
+	 * @param st    增加标题栏的工作表，为空则为当前活动的工作表
 	 */
 	public void appendTitle(String[] title, Sheet st) {
-		if(title==null)
+		if (title == null)
 			return;
 		if (st == null)
 			st = this.getCurrentSheet();
@@ -267,16 +260,13 @@ public class ExcelProcessor extends DataFileProcessor {
 			r.getCell(i).setCellValue(title[i]);
 		}
 	}
-	
 
 	/**
 	 * 通过接口类RowProcessor对源文件目录下所有的Excel进行处理 典型应用如多个原始Excel文件需要统一追加到一个新Excel文件并进行格式处理
 	 * 
-	 * @param dir
-	 *            含多个原始Excel文件
-	 * @param titleLength
-	 *            原始文件标题栏长度
-	 * @param rp 实现对数据源Excel文件行进行处理的接口
+	 * @param dir         含多个原始Excel文件
+	 * @param titleLength 原始文件标题栏长度
+	 * @param rp          实现对数据源Excel文件行进行处理的接口
 	 * @throws Exception
 	 */
 	public void appendFile(File[] dir, int titleLength, RowProcessable rp) throws Exception {
@@ -295,7 +285,9 @@ public class ExcelProcessor extends DataFileProcessor {
 		}
 	}
 
-	/**对当前加载的Excel每个工作表每行进行遍历，可忽略指定行数的标题栏
+	/**
+	 * 对当前加载的Excel每个工作表每行进行遍历，可忽略指定行数的标题栏
+	 * 
 	 * @param titleLength 标题栏行数
 	 * @param rp
 	 * @throws Exception
@@ -334,33 +326,41 @@ public class ExcelProcessor extends DataFileProcessor {
 	}
 
 	/**
+	 * 开发中！ 将加载的Excel多个sheet单独保存至独立文件
+	 * 
+	 * @author Mr_Li
+	 * @param outputDir
+	 * @param isXlsxFile
+	 */
+	public void splitSingleSheet(File outputDir, boolean isXlsxFile) {
+		String[] targetFileName = { outputDir.getAbsolutePath() + "/" + this.dataFile.getName().split("\\.")[0] + "_",
+				(isXlsxFile ? ".xlsx" : ".xls") };
+//		this.wb.forEach(st->{st.});
+	}
+
+	/**
 	 * 将本对象加载的Excel文件按最大行数maxRow分割为多个Excel小文件
 	 * 
-	 * @param maxRow
-	 *            分割出的小Excel最大行数
-	 * @param outputFiles
-	 *            输出文件列表，本方法不处理其标题栏
-	 * @param thisTitleLength
-	 *            本文件的标题长度
-	 * @param creator
-	 *            需要对原始Excel文档进行处理实现的接口类
+	 * @param maxRow          分割出的小Excel最大行数
+	 * @param outputFiles     输出文件列表，本方法不处理其标题栏
+	 * @param thisTitleLength 本文件的标题长度
+	 * @param creator         需要对原始Excel文档进行处理实现的接口类
 	 * @throws Exception
 	 */
 	public <E> void splitDataFile(int maxRow, File[] outputFiles, int thisTitleLength, EntityCreatable<E> creator)
 			throws Exception {
-		int[] ctrlCount=new int[] {0,0,0};//ctrlLine,ctrlOutput,totalProcess
+		int[] ctrlCount = new int[] { 0, 0, 0 };// ctrlLine,ctrlOutput,totalProcess
 		ExcelProcessor ep = new ExcelProcessor();
 		ep.loadDataFile(outputFiles[ctrlCount[1]]);// 目标Excel
 		this.iterateExcel(thisTitleLength, new RowProcessable() {
-			
+
 			@Override
 			public void processRow(Row r, int sheetNum) throws Exception {
 				// TODO Auto-generated method stub
 				if (creator == null) {
 					ep.appendRow(ExcelProcessor.getRowValue(r), null);
 				} else
-					ep.appendRow(creator.toStringArray(creator.getEntityFromObject(r)),
-							ep.getCurrentSheet());
+					ep.appendRow(creator.toStringArray(creator.getEntityFromObject(r)), ep.getCurrentSheet());
 				ctrlCount[2]++;
 				ctrlCount[0]++;
 				if (ctrlCount[0] >= maxRow && ctrlCount[1] + 1 < outputFiles.length) {
@@ -377,9 +377,11 @@ public class ExcelProcessor extends DataFileProcessor {
 		System.out.println("分割完毕，共分割 " + ctrlCount[2] + " 条");
 	}
 
-	/** 将本对象加载的Excel文件按最大行数maxRow分割为多个Excel小文件，自动生成分割后Excel小文件
-	 * @param maxRow 单个文件的最大行数(含标题行)
-	 * @param outputDir 输出的目录，需为文件夹
+	/**
+	 * 将本对象加载的Excel文件按最大行数maxRow分割为多个Excel小文件，自动生成分割后Excel小文件
+	 * 
+	 * @param maxRow          单个文件的最大行数(含标题行)
+	 * @param outputDir       输出的目录，需为文件夹
 	 * @param isXlsxFile
 	 * @param targetTitle
 	 * @param thisTitleLength
@@ -388,9 +390,9 @@ public class ExcelProcessor extends DataFileProcessor {
 	 */
 	public <E> void splitDataFile(int maxRow, File outputDir, boolean isXlsxFile, String[] targetTitle,
 			int thisTitleLength, EntityCreatable<E> creator) throws Exception {
-		if(!outputDir.isDirectory())
+		if (!outputDir.isDirectory())
 			throw new IOException(ERROR_NOT_DIR);
-		int[] ctrlCount = new int[] { 0, 0, 1 };//lineCtrl,totalCtrl,fileCtrl 实际上相当于单独三个变量，但是考虑到内部类的问题
+		int[] ctrlCount = new int[] { 0, 0, 1 };// lineCtrl,totalCtrl,fileCtrl 实际上相当于单独三个变量，但是考虑到内部类的问题
 		String[] targetFileName = { outputDir.getAbsolutePath() + "/" + this.dataFile.getName().split("\\.")[0] + "_",
 				(isXlsxFile ? ".xlsx" : ".xls") };
 		File targetFile = new File(targetFileName[0] + ctrlCount[2] + targetFileName[1]);
@@ -423,18 +425,13 @@ public class ExcelProcessor extends DataFileProcessor {
 		epTarget.closeDataFile();
 	}
 
-	
 	/**
 	 * 按Excel内容处理为HashMap格式,仅支持未合并的单元格
 	 * 
-	 * @param ep
-	 *            当前加载了Excel的对象
-	 * @param titleLength
-	 *            当前Excel标题栏长度
-	 * @param keyLine
-	 *            key值所在列，0-base
-	 * @param valueLine
-	 *            值所在列，0-base
+	 * @param ep          当前加载了Excel的对象
+	 * @param titleLength 当前Excel标题栏长度
+	 * @param keyLine     key值所在列，0-base
+	 * @param valueLine   值所在列，0-base
 	 * @return
 	 */
 	public static Map<Object, Object> getHashMap(ExcelProcessor ep, int titleLength, int keyLine, int valueLine) {
@@ -452,8 +449,7 @@ public class ExcelProcessor extends DataFileProcessor {
 	 * 返回单元格的值
 	 * 
 	 * @param c
-	 * @param returnFormula
-	 *            是否直接返回公式值，缺省则为返回实际值
+	 * @param returnFormula 是否直接返回公式值，缺省则为返回实际值
 	 * @return 返回值为字符串或数值
 	 */
 	public Object getSingleCellValue(Cell c, boolean returnFormula) {
@@ -561,12 +557,9 @@ public class ExcelProcessor extends DataFileProcessor {
 	/**
 	 * 判断指定的单元格是否是合并单元格
 	 * 
-	 * @param sheet
-	 *            工作表
-	 * @param row
-	 *            行下标
-	 * @param column
-	 *            列下标
+	 * @param sheet  工作表
+	 * @param row    行下标
+	 * @param column 列下标
 	 * @return
 	 */
 	public static boolean isMergedRegion(Sheet sheet, int row, int column) {
@@ -617,14 +610,10 @@ public class ExcelProcessor extends DataFileProcessor {
 	 * 合并单元格
 	 * 
 	 * @param sheet
-	 * @param firstRow
-	 *            开始行
-	 * @param lastRow
-	 *            结束行
-	 * @param firstCol
-	 *            开始列
-	 * @param lastCol
-	 *            结束列
+	 * @param firstRow 开始行
+	 * @param lastRow  结束行
+	 * @param firstCol 开始列
+	 * @param lastCol  结束列
 	 */
 	public static void mergeRegion(Sheet sheet, int firstRow, int lastRow, int firstCol, int lastCol) {
 		sheet.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
@@ -640,13 +629,13 @@ public class ExcelProcessor extends DataFileProcessor {
 	public static String getStringCellValue(Cell cell) {
 		if (cell == null)
 			return "";
-		if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+		if (cell.getCellType() == CellType.STRING) {
 			return cell.getStringCellValue();
-		} else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+		} else if (cell.getCellType() == CellType.BOOLEAN) {
 			return String.valueOf(cell.getBooleanCellValue());
-		} else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+		} else if (cell.getCellType() == CellType.FORMULA) {
 			return cell.getCellFormula();
-		} else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+		} else if (cell.getCellType() == CellType.NUMERIC) {
 			return String.valueOf(cell.getNumericCellValue());
 		}
 		return "";

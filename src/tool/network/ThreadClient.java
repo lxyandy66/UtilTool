@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public abstract class ThreadClient implements Runnable {
@@ -53,14 +54,17 @@ public abstract class ThreadClient implements Runnable {
 					break;
 				}
 			}
-		} catch (UnknownHostException e) {
+		} catch (SocketException e) {
+			socket = null;
+			// TODO: handle exception
+		}catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			socket=null;
+			socket = null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			socket=null;
+			socket = null;
 		}
 	}
 
@@ -72,19 +76,20 @@ public abstract class ThreadClient implements Runnable {
 
 	public void shutdown() {
 		try {
-			if (socket == null)
+
+			if (this.socket == null)
 				return;
-			//科学的socket关闭方法，先socket的io流，再br，最后socket自己
-			socket.shutdownInput();
-			socket.shutdownOutput();
+			synchronized (socket) {
+				this.socket.close();
+			}
+			// 科学的socket关闭方法，先socket的io流，再br，最后socket自己
+	
 
 			if (pw != null)
 				pw.close();
 			if (br != null)
 				br.close();
-			if (socket != null || !socket.isClosed()) {
-				socket.close();
-			}
+
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

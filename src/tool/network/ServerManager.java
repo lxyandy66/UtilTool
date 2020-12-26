@@ -81,6 +81,7 @@ public class ServerManager implements Runnable {
 			sp.printConsole("start...");
 			// 用来临时保存客户端连接的Socket对象
 			Socket client = null;
+//			ThreadServer tcpTemp=null;
 			while (true) {
 				// 接收客户连接并添加到list中
 				client = server.accept();
@@ -88,7 +89,6 @@ public class ServerManager implements Runnable {
 				if (client.isClosed())
 					continue;
 				// 开启一个客户端线程
-
 				list_client.add(new ThreadServer(new ClientTcpSocket(client), sp));
 				es.execute(list_client.get(list_client.size() - 1));// 就这里一句话特么我就要一个类啊!
 //				这里的执行很奇怪，new了thread之后后面一句就暂时不执行了，直到下一个socket来
