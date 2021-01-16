@@ -82,6 +82,7 @@ public class ThreadServer implements Runnable {// 觉得这个还可以再精简
 				}catch (Exception e) {
 					// TODO: handle exception
 					sp.printConsole("\nClient>> " + "Other excepetion detected: "+e.getMessage());
+					e.printStackTrace();
 					return;
 				}
 			}

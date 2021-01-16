@@ -1,12 +1,10 @@
 package tool.mcu;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-
-import gnu.io.CommPortIdentifier;
+import com.fazecast.jSerialComm.SerialPort;
 
 /**
- * 串口的管理类
+ * 串口的管理类，基于RXTX库实现
  * 
  * @author Mr_Li
  *
@@ -18,20 +16,21 @@ public class SerialManager {
 	 *
 	 * @return 可用端口名称列表，没有时 列表为空
 	 */
-	public static ArrayList<String> getAllComPort() {
-		/**
-		 * getPortIdentifiers：获得电脑主板当前所有可用串口
-		 */
-		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
-		ArrayList<String> portNameList = new ArrayList<>();
-
+	public static String[] getAllComPort() {
+//		/**
+//		 * getPortIdentifiers：获得电脑主板当前所有可用串口
+//		 */
+//		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
+		
+		
+		SerialPort[] serialPortList=SerialPort.getCommPorts();
+		String[] portNameList = new String[SerialPort.getCommPorts().length];
 		/**
 		 * 将可用串口名添加到 List 列表
 		 */
-		while (portList.hasMoreElements()) {
-			String portName = portList.nextElement().getName();// 名称如 COM1、COM2....
-			portNameList.add(portName);
-		}
+		for(int i=0;i<SerialPort.getCommPorts().length;i++)
+			portNameList[i]=serialPortList[i].getSystemPortName();
+		
 		return portNameList;
 	}
 }

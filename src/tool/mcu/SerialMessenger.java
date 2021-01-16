@@ -6,44 +6,40 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.SerialPort;
+import com.fazecast.jSerialComm.SerialPort;
+
+
 
 /**
+ * 
  * @author Mr_Li
  *
  */
 public class SerialMessenger {
 
-	/**
-	 * 串口识别器
-	 */
-	private CommPortIdentifier portId;// CommPortIdentifier.getPortIdentifier("");
+	
 
 	/**
 	 * 
 	 */
 	private SerialPort port;
 
-	private static String portName;
-	private static int openPortTimeOut;
+	private String portName;
 
-	private boolean isInit = false;
+	private boolean isPortInit = false;
 
 	private BufferedReader mcuBr;
 	private PrintWriter mcuPw;
 
 	public void initSerialPort(String portDescr, int baudRate, int datebits, int stopbits, int parity)
 			throws Exception {
-		portId = CommPortIdentifier.getPortIdentifier(portDescr);
 		/**
 		 * open(String TheOwner, int i)：打开端口 TheOwner 自定义一个端口名称，随便自定义即可
 		 * i：打开的端口的超时时间，单位毫秒，超时则抛出异常：PortInUseException if in use.
 		 * 如果此时串口已经被占用，则抛出异常：gnu.io.PortInUseException: Unknown Application
 		 */
-		port = (SerialPort) portId.open(SerialMessenger.portName, SerialMessenger.openPortTimeOut);
+		this.portName=portDescr;
+		port = SerialPort.getCommPort(this.portName);
 
 		/**
 		 * 设置串口参数：setSerialPortParams( int b, int d, int s, int p ) b：波特率（baudrate）
@@ -52,7 +48,11 @@ public class SerialMessenger {
 		 * 如果参数设置错误，则抛出异常：gnu.io.UnsupportedCommOperationException: Invalid Parameter
 		 * 此时必须关闭串口，否则下次 portIdentifier.open 时会打不开串口，因为已经被占用
 		 */
-		port.setSerialPortParams(baudRate, datebits, stopbits, parity);
+		
+		port.setComPortParameters(baudRate, datebits, stopbits, parity);
+		port.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
+		port.openPort();//jserialcomm这个库得吹一下，设置参数可以任何时候
+		this.isPortInit=true;
 	}
 
 	/**
@@ -94,18 +94,24 @@ public class SerialMessenger {
 		
 		synchronized (this.port) {
 			if (this.port != null) {
-				this.port.close();
+				this.port.closePort();
 			}
 		}
 
 	}
 
 	private boolean checkConnected() {
-		return checkExisted();
+		if(checkExisted())
+			return false;
+		return port.isOpen();
 	}
 
 	private boolean checkExisted() {
-		return port != null;
+		if(port==null)
+			return false;
+		if(!isPortInit)
+			return false;
+		return true;
 	}
 
 	public String receiveMessage() throws IOException {
