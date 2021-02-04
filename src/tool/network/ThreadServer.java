@@ -3,6 +3,8 @@ package tool.network;
 import java.io.IOException;
 import java.net.SocketException;
 
+import org.jinq.orm.annotations.EntitySupplier;
+
 public class ThreadServer implements Runnable {// 觉得这个还可以再精简一点
 //		线程池只能放入实现Runable或Callable类线程，不能直接放入继承Thread的类。
 	private ClientSocket tr_socket;
@@ -70,11 +72,11 @@ public class ThreadServer implements Runnable {// 觉得这个还可以再精简
 			while (true) {
 				try {
 					str_msg= tr_socket.receiveMessage();//切记这里会有死锁
-					if (str_msg != null) {
+					if (str_msg != null&& !"".equals(str_msg)) {
 						sp.printConsole("\nClient>> " + str_msg);
-						sp.processIncomeMsg(str_msg);
+						sp.processIncomeMsg(new String(str_msg));//???理论来说是传值的，但是为什么会报空指针
 					}
-					str_msg=null;
+					str_msg="";
 				} catch (SocketException e) {
 					// TODO Auto-generated catch block
 					sp.printConsole("\nClient>> " + "socket closed");
